@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+"""ezp-wait - wait until the EZP2019+ serprog device is ready, then run a command.
+
+After an interrupted flashrom/serprog transfer the device takes a while to
+reset and re-enumerate (a few seconds to tens of seconds, depending on USB
+autosuspend). Use this wrapper so you can just re-run your flashrom command
+and it will start as soon as the device handshakes, e.g.:
+
+    ezp-wait flashrom -p serprog:dev=/dev/ttyACM0:4000000,spispeed=1000000 -r dump.bin
+
+Exit code: 0 = device ready (command ran with its own exit code)
+            2 = device never became ready within the timeout
+"""
+import sys, os, time, select, tty, termios, subprocess
+
+DEV = "/dev/ttyACM0"
+TIMEOUT = float(os.environ.get("EZP_WAIT_TIMEOUT", "90"))
+POLL = float(os.environ.get("EZP_WAIT_POLL", "0.4"))
+
+
+def try_sync(fd):
+    """Drain stale bytes, then send SYNCNOP(0x10); True on NAK+ACK."""
+    # drain
+    deadline = time.time() + 0.25
+    while time.time() < deadline:
+        r, _, _ = select.select([fd], [], [], 0.05)
+        if r:
+            try:
+                os.read(fd, 4096)
+            except OSError:
+                pass
+    try:
+        os.write(fd, b"\x10")
+    except OSError:
+        return False
+    data = b""
+    deadline = time.time() + 2.0
+    while len(data) < 2 and time.time() < deadline:
+        r, _, _ = select.select([fd], [], [], 0.05)
+        if r:
+            try:
+                data += os.read(fd, 8)
+            except OSError:
+                return False
+    return data == b"\x15\x06"
+
+
+def main():
+    args = sys.argv[1:]
+    start = time.time()
+    laps = 0
+    while time.time() - start < TIMEOUT:
+        if not os.path.exists(DEV):
+            laps += 1
+            time.sleep(POLL)
+            continue
+        try:
+            fd = os.open(DEV, os.O_RDWR | os.O_NOCTTY)
+            tty.setraw(fd)
+            ok = try_sync(fd)
+            os.close(fd)
+        except OSError:
+            ok = False
+        if ok:
+            print(f"[ezp-wait] device ready after {time.time()-start:.1f}s", file=sys.stderr)
+            if not args:
+                return 0
+            return subprocess.call(args)
+        laps += 1
+        time.sleep(POLL)
+    print(f"[ezp-wait] TIMEOUT: device not ready after {TIMEOUT:.0f}s", file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())

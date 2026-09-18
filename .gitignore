@@ -1,0 +1,23 @@
+# Build artifacts
+build/
+*.bin
+*.ihx
+*.rel
+*.lst
+*.asm
+*.sym
+*.map
+*.mem
+*.lk
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# PlatformIO
+.pio/
+.pioenvs/
+
+# Python
+venv/
+__pycache__/

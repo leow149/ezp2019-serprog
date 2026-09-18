@@ -1,0 +1,20 @@
+NOTICE
+
+This project is a fork and cleanup of:
+
+  iCE-HACK3R/EZP2020_CH552x-FW
+    (https://github.com/iCE-HACK3R/EZP2020_CH552x-FW)
+    serprog firmware for the CH552x-based EZP programmers, itself derived from:
+
+  ieiao/ch554_sdcc
+    (https://github.com/ieiao/ch554_sdcc)
+    CH55x 8051 SDCC SDK and the original "serprog" USB example
+    (Copyright (C) ieiao, 2017).
+
+Included WCH register headers (include/ch55x*.h), the SPI/UART/debug drivers
+and the chip basis are from the WCH CH55x SDK (www.wch.cn); per WCH policy they
+may be used freely provided that attribution is kept.
+
+All modifications above the upstream sources are released under the MIT License
+(see LICENSE). The EZP2019+ hardware is a commercial product; this firmware is a
+personal mod, not affiliated with or endorsed by its manufacturer.
