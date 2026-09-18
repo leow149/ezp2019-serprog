@@ -28,7 +28,6 @@ Custom **serprog** (flashrom) firmware for the FNIRSI/zhifengsoft-style
 Requires [SDCC](https://sdcc.sourceforge.net/) and `objcopy` (binutils):
 
 ```sh
-cd serprog-ezp2020
 make                          # -> build/ezp2019-serprog.ihx, ezp2019-serprog.bin
 ```
 

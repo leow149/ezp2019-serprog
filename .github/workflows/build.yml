@@ -15,12 +15,11 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y sdcc binutils
 
       - name: Build firmware
-        working-directory: serprog-ezp2020
         run: make
 
       - name: Upload firmware
         uses: actions/upload-artifact@v4
         with:
           name: ezp2019-serprog
-          path: serprog-ezp2020/ezp2019-serprog.bin
+          path: ezp2019-serprog.bin
           if-no-files-found: error
